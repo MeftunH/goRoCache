@@ -1,7 +1,6 @@
 package goRoCache
 
 import (
-	"reflect"
 	"testing"
 )
 
@@ -65,20 +64,16 @@ func TestLessFrequencyOfItemAtIndexILessThanFrequencyOfItemAtIndexJ(t *testing.T
 		t.Errorf("Less() = %v, want %v", result, true)
 	}
 }
-func Test_lfuHeap_Pop(t *testing.T) {
-	tests := []struct {
-		name string
-		h    lfuHeap
-		want interface{}
-	}{
-		// TODO: Add test cases.
+func Test_lfuHeap_Pop_EmptyHeap(t *testing.T) {
+	h := lfuHeap{}
+	initialLen := h.Len()
+	got := h.Pop()
+	newLen := h.Len()
+	if newLen != initialLen {
+		t.Errorf("Pop() should not change length of empty heap")
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.h.Pop(); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("Pop() = %v, want %v", got, tt.want)
-			}
-		})
+	if got != nil {
+		t.Errorf("Pop() should return nil for empty heap")
 	}
 }
 func Test_lfuHeap_Push_NonNilItem_IncreasesLength(t *testing.T) {
