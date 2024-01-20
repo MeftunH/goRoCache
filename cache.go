@@ -15,10 +15,19 @@ type CacheStoreWithExpiration interface {
 	StoreWithExpiration(key, val interface{}, ttl time.Duration) error
 }
 
-type ExpiringCache struct {
-	CacheStoreWithExpiration(key, val interface{}, ttl time.Duration) error
-
+type ExpiringCache interface {
+	Cache
+	StoreWithExpiration(key, val interface{}, ttl time.Duration) error
 	ReplaceWithExpiration(key, val interface{}, ttl time.Duration) error
-
 	Expire(key interface{}, ttl time.Duration) error
+}
+
+type UpdatingCache interface {
+	Cache
+	StoreWithUpdate(key, initialValue interface{},
+		updateFunc func(currValue interface{}) interface{},
+		period time.Duration) error
+	ReplaceWithUpdate(key, initialValue interface{},
+		updateFunc func(currValue interface{}) interface{},
+		period time.Duration) error
 }
