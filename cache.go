@@ -31,3 +31,21 @@ type UpdatingCache interface {
 		updateFunc func(currValue interface{}) interface{},
 		period time.Duration) error
 }
+type errorType string
+
+const (
+	errorTypeUnexpectedError   errorType = "UnexpectedError"
+	errorTypeAlreadyExists               = "AlreadyExists"
+	errorTypeDoesNotExist                = "DoesNotExist"
+	errorTypeNonPositivePeriod           = "NonPositivePeriod"
+	errorTypeNilUpdateFunc               = "NilUpdateFunc"
+	errorTypeInvalidKeyType              = "InvalidKeyType"
+	errorTypeInvalidMessage              = "InvalidMessage"
+	errorTypeCacheNotEmpty               = "CacheNotEmpty"
+)
+
+type cacheError struct {
+	msg         string
+	errType     errorType
+	nestedError error
+}
