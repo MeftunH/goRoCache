@@ -49,3 +49,13 @@ type cacheError struct {
 	errType     errorType
 	nestedError error
 }
+
+func (ce cacheError) Error() string {
+	return ce.msg
+}
+func newError(errType errorType, msg string) cacheError {
+	return cacheError{
+		msg:     msg,
+		errType: errType,
+	}
+}
