@@ -85,3 +85,35 @@ func NewLfuWithCustomCache(capacity int, cache Cache) (*lfuCache, error) {
 		heap:     lfuHeap{},
 	}, nil
 }
+func (lfu *lfuCache) Store(key, val interface{}) error {
+	lfu.mutex.Lock()
+	defer lfu.mutex.Unlock()
+
+	return lfu.store(key, val)
+}
+
+func (lfu *lfuCache) store(key, val interface{}) error {
+	heapItem := &lfuHeapItem{
+		value:     key,
+		frequency: 0,
+	}
+
+	item := lfuItem{heapItem, val}
+
+	err := lfu.storage.Store(key, item)
+	if err != nil {
+		return err
+	}
+
+	heap.Push(&lfu.heap, heapItem)
+
+	if lfu.heap.Len() > lfu.capacity {
+		heapItem := heap.Pop(&lfu.heap).(*lfuHeapItem)
+		err := lfu.storage.Remove(heapItem.value)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
