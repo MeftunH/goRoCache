@@ -1,6 +1,9 @@
 package goRoCache
 
-import "container/heap"
+import (
+	"container/heap"
+	"sync"
+)
 
 type lfuHeapItem struct {
 	value     interface{}
@@ -40,4 +43,34 @@ var _ heap.Interface = (*lfuHeap)(nil)
 
 func (h lfuHeap) Len() int {
 	return len(h)
+}
+
+type lfuItem struct {
+	heapItem *lfuHeapItem
+	value    interface{}
+}
+
+type lfuCache struct {
+	// The maximal amount of cached items.
+	capacity int
+
+	// A cache that holds tha data.
+	storage Cache
+
+	// A min heap that behaves like a priority queue, where the lowest
+	// frequency is the higher priority to remove from the heap.
+	heap lfuHeap
+
+	mutex sync.Mutex
+}
+
+var _ Cache = (*lfuCache)(nil)
+
+// NewLfu creates a new lfuCache instance using mapCache.
+func NewLfu(capacity int) *lfuCache {
+	return &lfuCache{
+		capacity: capacity,
+		storage:  NewMapCache(),
+		heap:     lfuHeap{},
+	}
 }
