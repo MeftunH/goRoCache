@@ -137,3 +137,9 @@ func (lfu *lfuCache) get(key interface{}) (interface{}, error) {
 
 	return lfuItem.value, nil
 }
+func (lfu *lfuCache) GetLeastFrequentlyUsedKey() interface{} {
+	if lfu.isEmpty() {
+		return nil
+	}
+	return lfu.heap[0].value
+}
