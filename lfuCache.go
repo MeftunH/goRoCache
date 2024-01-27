@@ -51,14 +51,10 @@ type lfuItem struct {
 }
 
 type lfuCache struct {
-	// The maximal amount of cached items.
 	capacity int
 
-	// A cache that holds tha data.
 	storage Cache
 
-	// A min heap that behaves like a priority queue, where the lowest
-	// frequency is the higher priority to remove from the heap.
 	heap lfuHeap
 
 	mutex sync.Mutex
@@ -66,11 +62,26 @@ type lfuCache struct {
 
 var _ Cache = (*lfuCache)(nil)
 
-// NewLfu creates a new lfuCache instance using mapCache.
 func NewLfu(capacity int) *lfuCache {
 	return &lfuCache{
 		capacity: capacity,
 		storage:  NewMapCache(),
 		heap:     lfuHeap{},
 	}
+}
+func NewLfuWithCustomCache(capacity int, cache Cache) (*lfuCache, error) {
+	keys, err := cache.Keys()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(keys) > 0 {
+		return nil, newError(errorTypeCacheNotEmpty, "supplied cache must be empty")
+	}
+
+	return &lfuCache{
+		capacity: capacity,
+		storage:  cache,
+		heap:     lfuHeap{},
+	}, nil
 }
