@@ -143,3 +143,30 @@ func (lfu *lfuCache) GetLeastFrequentlyUsedKey() interface{} {
 	}
 	return lfu.heap[0].value
 }
+func (lfu *lfuCache) Remove(key interface{}) error {
+	lfu.mutex.Lock()
+	defer lfu.mutex.Unlock()
+
+	return lfu.remove(key)
+}
+func (lfu *lfuCache) remove(key interface{}) error {
+	value, err := lfu.storage.Get(key)
+	if err != nil {
+		return err
+	}
+
+	err = lfu.storage.Remove(key)
+	if err != nil {
+		return err
+	}
+
+	// TODO: find a better way to remove the item from the heap (if there is one).
+	lfuItem := value.(lfuItem)
+	for i, heapItem := range lfu.heap {
+		if heapItem == lfuItem.heapItem {
+			heap.Remove(&lfu.heap, i)
+		}
+	}
+
+	return nil
+}
