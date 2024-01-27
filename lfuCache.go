@@ -170,3 +170,13 @@ func (lfu *lfuCache) remove(key interface{}) error {
 
 	return nil
 }
+func (lfu *lfuCache) IsEmpty() bool {
+	lfu.mutex.Lock()
+	defer lfu.mutex.Unlock()
+
+	return lfu.isEmpty()
+}
+
+func (lfu *lfuCache) isEmpty() bool {
+	return lfu.heap.Len() < 1
+}
