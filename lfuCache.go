@@ -117,3 +117,23 @@ func (lfu *lfuCache) store(key, val interface{}) error {
 
 	return nil
 }
+func (lfu *lfuCache) Get(key interface{}) (interface{}, error) {
+	lfu.mutex.Lock()
+	defer lfu.mutex.Unlock()
+
+	return lfu.get(key)
+}
+
+func (lfu *lfuCache) get(key interface{}) (interface{}, error) {
+	item, err := lfu.storage.Get(key)
+	if err != nil {
+		return nil, err
+	}
+
+	lfuItem := item.(lfuItem)
+	lfuItem.heapItem.frequency++
+
+	heap.Init(&lfu.heap)
+
+	return lfuItem.value, nil
+}
