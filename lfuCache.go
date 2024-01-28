@@ -60,6 +60,21 @@ type lfuCache struct {
 	mutex sync.Mutex
 }
 
+func (lfu *lfuCache) Replace(key, val interface{}) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (lfu *lfuCache) Clear() error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (lfu *lfuCache) Keys() ([]interface{}, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
 var _ Cache = (*lfuCache)(nil)
 
 func NewLfu(capacity int) *lfuCache {
