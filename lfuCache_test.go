@@ -354,3 +354,21 @@ func Test_lfuCache_Store_MultipleItems(t *testing.T) {
 		}
 	}
 }
+func Test_lfuCache_Store_FullCache(t *testing.T) {
+	cache := NewLfu(2)
+	cache.Store("key1", "value1")
+	cache.Store("key2", "value2")
+	err := cache.Store("key3", "value3")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+}
+
+func Test_lfuCache_Store_ExistingItem(t *testing.T) {
+	cache := NewLfu(2)
+	cache.Store("key1", "value1")
+	err := cache.Store("key1", "value2")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+}
