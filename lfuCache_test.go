@@ -124,3 +124,53 @@ func Test_lfuHeap_Push_LowerFrequencyItem(t *testing.T) {
 		t.Errorf("Push() did not increase length by 1")
 	}
 }
+func Test_lfuCache_get_ExistingItem(t *testing.T) {
+	cache := NewLfu(2)
+	cache.Store("key1", "value1")
+	value, err := cache.get("key1")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+	if value != "value1" {
+		t.Errorf("get() = %v, want %v", value, "value1")
+	}
+}
+
+func Test_lfuCache_get_NonExistingItem(t *testing.T) {
+	cache := NewLfu(2)
+	_, err := cache.get("key1")
+	if err == nil {
+		t.Errorf("Expected error, got nil")
+	}
+}
+
+func Test_lfuCache_get_FrequencyIncrement(t *testing.T) {
+	cache := NewLfu(2)
+	cache.Store("key1", "value1")
+	cache.get("key1")
+	cache.get("key1")
+	if cache.heap[0].frequency != 2 {
+		t.Errorf("Frequency = %v, want %v", cache.heap[0].frequency, 2)
+	}
+}
+
+func Test_lfuCache_get_FullCache(t *testing.T) {
+	cache := NewLfu(2)
+	cache.Store("key1", "value1")
+	cache.Store("key2", "value2")
+	value, err := cache.get("key1")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+	if value != "value1" {
+		t.Errorf("get() = %v, want %v", value, "value1")
+	}
+}
+
+func Test_lfuCache_get_EmptyCache(t *testing.T) {
+	cache := NewLfu(2)
+	_, err := cache.get("key1")
+	if err == nil {
+		t.Errorf("Expected error, got nil")
+	}
+}
