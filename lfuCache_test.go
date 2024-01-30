@@ -268,3 +268,22 @@ func Test_lfuCache_Store_EmptyCache(t *testing.T) {
 		t.Errorf("Unexpected error: %v", err)
 	}
 }
+func Test_lfuCache_Store_EmptyCache(t *testing.T) {
+	cache := NewLfu(2)
+	err := cache.Store("key1", "value1")
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	// Retrieve the stored item
+	value, err := cache.Get("key1")
+	_ = err
+	if err != nil {
+		t.Errorf("Unexpected error: %v", err)
+	}
+
+	// Check if the retrieved value is correct
+	if value != "value1" {
+		t.Errorf("Get() = %v, want %v", value, "value1")
+	}
+}
