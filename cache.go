@@ -9,6 +9,7 @@ type Cache interface {
 	Replace(key, val interface{}) error
 	Clear() error
 	Keys() ([]interface{}, error)
+	StoreWithExpiration(key interface{}, item lfuItem, ttl time.Duration) interface{}
 }
 
 type CacheStoreWithExpiration interface {

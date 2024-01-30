@@ -3,6 +3,7 @@ package goRoCache
 import (
 	"container/heap"
 	"sync"
+	"time"
 )
 
 type lfuHeapItem struct {
@@ -194,4 +195,37 @@ func (lfu *lfuCache) IsEmpty() bool {
 
 func (lfu *lfuCache) isEmpty() bool {
 	return lfu.heap.Len() < 1
+}
+func (lfu *lfuCache) StoreWithExpiration(key, val interface{}, ttl time.Duration) error {
+	lfu.mutex.Lock()
+	defer lfu.mutex.Unlock()
+
+	return lfu.storeWithExpiration(key, val, ttl)
+}
+
+func (lfu *lfuCache) storeWithExpiration(key interface{}, val interface{}, ttl time.Duration) error {
+	heapItem := &lfuHeapItem{
+		value:     key,
+		frequency: 0,
+	}
+
+	item := lfuItem{heapItem, val}
+
+	err := lfu.storage.StoreWithExpiration(key, item, ttl)
+	if err != nil {
+		return err
+	}
+
+	heap.Push(&lfu.heap, heapItem)
+
+	if lfu.heap.Len() > lfu.capacity {
+		heapItem := heap.Pop(&lfu.heap).(*lfuHeapItem)
+		err := lfu.storage.Remove(heapItem.value)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+
 }
