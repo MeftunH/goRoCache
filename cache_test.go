@@ -220,3 +220,11 @@ func TestNewErrorWithNilNestedError(t *testing.T) {
 		t.Errorf("Expected nestedError to be nil, but got %v", result.nestedError)
 	}
 }
+func TestNewErrorWithEmptyMsg(t *testing.T) {
+	errType := errorType("test")
+	result := newError(errType, "")
+
+	if result.msg != "" {
+		t.Errorf("Expected msg to be empty, but got %s", result.msg)
+	}
+}
