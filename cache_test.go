@@ -288,3 +288,46 @@ func TestNewWrapperError(t *testing.T) {
 		})
 	}
 }
+func TestErrorTypeFunctions(t *testing.T) {
+	tests := []struct {
+		name string
+		err  error
+		want map[string]bool
+	}{
+		{
+			name: "Test with UnexpectedError",
+			err:  newError(errorTypeUnexpectedError, "Unexpected error occurred"),
+			want: map[string]bool{
+				"IsUnexpectedError":   true,
+				"IsAlreadyExists":     false,
+				"IsNonPositivePeriod": false,
+				"IsNilUpdateFunc":     false,
+				"IsInvalidKeyType":    false,
+				"IsInvalidMessage":    false,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := IsUnexpectedError(tt.err); got != tt.want["IsUnexpectedError"] {
+				t.Errorf("IsUnexpectedError() = %v, want %v", got, tt.want["IsUnexpectedError"])
+			}
+			if got := IsAlreadyExists(tt.err); got != tt.want["IsAlreadyExists"] {
+				t.Errorf("IsAlreadyExists() = %v, want %v", got, tt.want["IsAlreadyExists"])
+			}
+			if got := IsNonPositivePeriod(tt.err); got != tt.want["IsNonPositivePeriod"] {
+				t.Errorf("IsNonPositivePeriod() = %v, want %v", got, tt.want["IsNonPositivePeriod"])
+			}
+			if got := IsNilUpdateFunc(tt.err); got != tt.want["IsNilUpdateFunc"] {
+				t.Errorf("IsNilUpdateFunc() = %v, want %v", got, tt.want["IsNilUpdateFunc"])
+			}
+			if got := IsInvalidKeyType(tt.err); got != tt.want["IsInvalidKeyType"] {
+				t.Errorf("IsInvalidKeyType() = %v, want %v", got, tt.want["IsInvalidKeyType"])
+			}
+			if got := IsInvalidMessage(tt.err); got != tt.want["IsInvalidMessage"] {
+				t.Errorf("IsInvalidMessage() = %v, want %v", got, tt.want["IsInvalidMessage"])
+			}
+		})
+	}
+}
