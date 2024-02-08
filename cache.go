@@ -16,13 +16,6 @@ type CacheStoreWithExpiration interface {
 	StoreWithExpiration(key, val interface{}, ttl time.Duration) error
 }
 
-type ExpiringCache interface {
-	Cache
-	StoreWithExpiration(key, val interface{}, ttl time.Duration) error
-	ReplaceWithExpiration(key, val interface{}, ttl time.Duration) error
-	Expire(key interface{}, ttl time.Duration) error
-}
-
 type UpdatingCache interface {
 	Cache
 	StoreWithUpdate(key, initialValue interface{},
