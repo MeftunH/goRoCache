@@ -1,6 +1,7 @@
 package goRoCache
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 )
@@ -234,5 +235,56 @@ func TestNewErrorWithEmptyStringMsg(t *testing.T) {
 
 	if result.msg != "" {
 		t.Errorf("Expected msg to be empty, but got %s", result.msg)
+	}
+}
+func TestNewWrapperError(t *testing.T) {
+	tests := []struct {
+		name        string
+		errType     errorType
+		msg         string
+		nestedError error
+		want        cacheError
+	}{
+		{
+			name:        "Test with valid inputs",
+			errType:     errorTypeUnexpectedError,
+			msg:         "Unexpected error occurred",
+			nestedError: errors.New("Nested error"),
+			want: cacheError{
+				msg:         "Unexpected error occurred",
+				errType:     errorTypeUnexpectedError,
+				nestedError: errors.New("Nested error"),
+			},
+		},
+		{
+			name:        "Test with empty message",
+			errType:     errorTypeUnexpectedError,
+			msg:         "",
+			nestedError: errors.New("Nested error"),
+			want: cacheError{
+				msg:         "",
+				errType:     errorTypeUnexpectedError,
+				nestedError: errors.New("Nested error"),
+			},
+		},
+		{
+			name:        "Test with nil nested error",
+			errType:     errorTypeUnexpectedError,
+			msg:         "Unexpected error occurred",
+			nestedError: nil,
+			want: cacheError{
+				msg:         "Unexpected error occurred",
+				errType:     errorTypeUnexpectedError,
+				nestedError: nil,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := newWrapperError(tt.errType, tt.msg, tt.nestedError); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("newWrapperError() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }
