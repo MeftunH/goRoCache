@@ -1,4 +1,4 @@
-package cache
+package goRoCache
 
 import (
 	"container/heap"
