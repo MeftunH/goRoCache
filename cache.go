@@ -60,3 +60,10 @@ func newError(errType errorType, msg string) cacheError {
 		errType: errType,
 	}
 }
+func newWrapperError(errType errorType, msg string, nestedError error) cacheError {
+	return cacheError{
+		msg:         msg,
+		errType:     errType,
+		nestedError: nestedError,
+	}
+}
