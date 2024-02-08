@@ -211,3 +211,12 @@ func TestNewErrorWithProvidedValues(t *testing.T) {
 		t.Errorf("Expected nestedError to be nil, but got %v", result.nestedError)
 	}
 }
+func TestNewErrorWithNilNestedError(t *testing.T) {
+	errType := errorType("test")
+	msg := "test message"
+	result := newError(errType, msg)
+
+	if result.nestedError != nil {
+		t.Errorf("Expected nestedError to be nil, but got %v", result.nestedError)
+	}
+}
