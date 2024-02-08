@@ -72,3 +72,7 @@ func IsNonPositivePeriod(err error) bool {
 	cacheErr, isCacheErr := err.(cacheError)
 	return isCacheErr && cacheErr.errType == errorTypeNonPositivePeriod
 }
+func IsNilUpdateFunc(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeNilUpdateFunc
+}
