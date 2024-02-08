@@ -8,9 +8,17 @@ import (
 type lfuHeapItem struct {
 	value     interface{}
 	frequency int
-	index     int
+
+	index int
 }
+
 type lfuHeap []*lfuHeapItem
+
+var _ heap.Interface = (*lfuHeap)(nil)
+
+func (h lfuHeap) Len() int {
+	return len(h)
+}
 
 func (h lfuHeap) Less(i, j int) bool {
 	return h[i].frequency < h[j].frequency
@@ -39,12 +47,6 @@ func (h *lfuHeap) Pop() interface{} {
 	return item
 }
 
-var _ heap.Interface = (*lfuHeap)(nil)
-
-func (h lfuHeap) Len() int {
-	return len(h)
-}
-
 type lfuItem struct {
 	heapItem *lfuHeapItem
 	value    interface{}
@@ -60,21 +62,6 @@ type lfuCache struct {
 	mutex sync.Mutex
 }
 
-func (lfu *lfuCache) Replace(key, val interface{}) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (lfu *lfuCache) Clear() error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (lfu *lfuCache) Keys() ([]interface{}, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 var _ Cache = (*lfuCache)(nil)
 
 func NewLfu(capacity int) *lfuCache {
@@ -84,6 +71,7 @@ func NewLfu(capacity int) *lfuCache {
 		heap:     lfuHeap{},
 	}
 }
+
 func NewLfuWithCustomCache(capacity int, cache Cache) (*lfuCache, error) {
 	keys, err := cache.Keys()
 	if err != nil {
@@ -100,6 +88,7 @@ func NewLfuWithCustomCache(capacity int, cache Cache) (*lfuCache, error) {
 		heap:     lfuHeap{},
 	}, nil
 }
+
 func (lfu *lfuCache) Store(key, val interface{}) error {
 	lfu.mutex.Lock()
 	defer lfu.mutex.Unlock()
@@ -132,6 +121,7 @@ func (lfu *lfuCache) store(key, val interface{}) error {
 
 	return nil
 }
+
 func (lfu *lfuCache) Get(key interface{}) (interface{}, error) {
 	lfu.mutex.Lock()
 	defer lfu.mutex.Unlock()
@@ -158,12 +148,14 @@ func (lfu *lfuCache) GetLeastFrequentlyUsedKey() interface{} {
 	}
 	return lfu.heap[0].value
 }
+
 func (lfu *lfuCache) Remove(key interface{}) error {
 	lfu.mutex.Lock()
 	defer lfu.mutex.Unlock()
 
 	return lfu.remove(key)
 }
+
 func (lfu *lfuCache) remove(key interface{}) error {
 	value, err := lfu.storage.Get(key)
 	if err != nil {
@@ -175,7 +167,6 @@ func (lfu *lfuCache) remove(key interface{}) error {
 		return err
 	}
 
-	// TODO: find a better way to remove the item from the heap (if there is one).
 	lfuItem := value.(lfuItem)
 	for i, heapItem := range lfu.heap {
 		if heapItem == lfuItem.heapItem {
@@ -185,6 +176,73 @@ func (lfu *lfuCache) remove(key interface{}) error {
 
 	return nil
 }
+
+func (lfu *lfuCache) Replace(key, value interface{}) error {
+	lfu.mutex.Lock()
+	defer lfu.mutex.Unlock()
+
+	return lfu.replace(key, value)
+}
+
+func (lfu *lfuCache) replace(key, value interface{}) error {
+	err := lfu.remove(key)
+	if err != nil {
+		return err
+	}
+
+	err = lfu.store(key, value)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (lfu *lfuCache) Clear() error {
+	lfu.mutex.Lock()
+	defer lfu.mutex.Unlock()
+
+	return lfu.clear()
+}
+
+func (lfu *lfuCache) clear() error {
+	err := lfu.storage.Clear()
+	if err != nil {
+		return err
+	}
+
+	// Clear the heap.
+	lfu.heap = nil
+
+	return nil
+}
+
+func (lfu *lfuCache) Keys() ([]interface{}, error) {
+	return lfu.storage.Keys()
+}
+
+func (lfu *lfuCache) Count() int {
+	lfu.mutex.Lock()
+	defer lfu.mutex.Unlock()
+
+	return lfu.count()
+}
+
+func (lfu *lfuCache) count() int {
+	return lfu.heap.Len()
+}
+
+func (lfu *lfuCache) IsFull() bool {
+	lfu.mutex.Lock()
+	defer lfu.mutex.Unlock()
+
+	return lfu.isFull()
+}
+
+func (lfu *lfuCache) isFull() bool {
+	return lfu.heap.Len() >= lfu.capacity
+}
+
 func (lfu *lfuCache) IsEmpty() bool {
 	lfu.mutex.Lock()
 	defer lfu.mutex.Unlock()

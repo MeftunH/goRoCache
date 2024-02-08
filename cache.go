@@ -9,17 +9,11 @@ type Cache interface {
 	Replace(key, val interface{}) error
 	Clear() error
 	Keys() ([]interface{}, error)
+	StoreWithExpiration(key interface{}, item lfuItem, ttl time.Duration) interface{}
 }
 
 type CacheStoreWithExpiration interface {
 	StoreWithExpiration(key, val interface{}, ttl time.Duration) error
-}
-
-type ExpiringCache interface {
-	Cache
-	StoreWithExpiration(key, val interface{}, ttl time.Duration) error
-	ReplaceWithExpiration(key, val interface{}, ttl time.Duration) error
-	Expire(key interface{}, ttl time.Duration) error
 }
 
 type UpdatingCache interface {
@@ -58,4 +52,35 @@ func newError(errType errorType, msg string) cacheError {
 		msg:     msg,
 		errType: errType,
 	}
+}
+func newWrapperError(errType errorType, msg string, nestedError error) cacheError {
+	return cacheError{
+		msg:         msg,
+		errType:     errType,
+		nestedError: nestedError,
+	}
+}
+func IsUnexpectedError(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeUnexpectedError
+}
+func IsAlreadyExists(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeAlreadyExists
+}
+func IsNonPositivePeriod(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeNonPositivePeriod
+}
+func IsNilUpdateFunc(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeNilUpdateFunc
+}
+func IsInvalidKeyType(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeInvalidKeyType
+}
+func IsInvalidMessage(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeInvalidMessage
 }
