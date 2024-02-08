@@ -75,3 +75,7 @@ func IsAlreadyExists(err error) bool {
 	cacheErr, isCacheErr := err.(cacheError)
 	return isCacheErr && cacheErr.errType == errorTypeAlreadyExists
 }
+func IsNonPositivePeriod(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeNonPositivePeriod
+}
