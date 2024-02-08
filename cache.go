@@ -80,3 +80,7 @@ func IsInvalidKeyType(err error) bool {
 	cacheErr, isCacheErr := err.(cacheError)
 	return isCacheErr && cacheErr.errType == errorTypeInvalidKeyType
 }
+func IsInvalidMessage(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeInvalidMessage
+}
