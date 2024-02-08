@@ -6,20 +6,12 @@ import (
 )
 
 type lfuHeapItem struct {
-	// The item's value is the key of a specific
-	// value stored in lfuCache.
-	value interface{}
-
-	// The amount of time that a certain key has been accessed.
+	value     interface{}
 	frequency int
 
-	// The index of the item in the heap.
-	// It is needed by update and is maintained by the
-	// heap.Interface methods.
 	index int
 }
 
-// A slice of lfuItems that behaves is a min heap.
 type lfuHeap []*lfuHeapItem
 
 var _ heap.Interface = (*lfuHeap)(nil)
@@ -61,14 +53,10 @@ type lfuItem struct {
 }
 
 type lfuCache struct {
-	// The maximal amount of cached items.
 	capacity int
 
-	// A cache that holds tha data.
 	storage Cache
 
-	// A min heap that behaves like a priority queue, where the lowest
-	// frequency is the higher priority to remove from the heap.
 	heap lfuHeap
 
 	mutex sync.Mutex
@@ -76,7 +64,6 @@ type lfuCache struct {
 
 var _ Cache = (*lfuCache)(nil)
 
-// NewLfu creates a new lfuCache instance using mapCache.
 func NewLfu(capacity int) *lfuCache {
 	return &lfuCache{
 		capacity: capacity,
@@ -85,7 +72,6 @@ func NewLfu(capacity int) *lfuCache {
 	}
 }
 
-// NewLfuWithCustomCache creates a new lfuCache with custom cache.
 func NewLfuWithCustomCache(capacity int, cache Cache) (*lfuCache, error) {
 	keys, err := cache.Keys()
 	if err != nil {
@@ -103,8 +89,6 @@ func NewLfuWithCustomCache(capacity int, cache Cache) (*lfuCache, error) {
 	}, nil
 }
 
-// Store caches a new value.
-// Complexity - O(log n)
 func (lfu *lfuCache) Store(key, val interface{}) error {
 	lfu.mutex.Lock()
 	defer lfu.mutex.Unlock()
@@ -113,25 +97,20 @@ func (lfu *lfuCache) Store(key, val interface{}) error {
 }
 
 func (lfu *lfuCache) store(key, val interface{}) error {
-	// Create a new lfu heap item.
 	heapItem := &lfuHeapItem{
 		value:     key,
 		frequency: 0,
 	}
 
-	// Create a new lfu item.
 	item := lfuItem{heapItem, val}
 
-	// Store the new item in the inner cache.
 	err := lfu.storage.Store(key, item)
 	if err != nil {
 		return err
 	}
 
-	// Add the new key to the heap.
 	heap.Push(&lfu.heap, heapItem)
 
-	// If the inner cache is full, remove the least frequently used.
 	if lfu.heap.Len() > lfu.capacity {
 		heapItem := heap.Pop(&lfu.heap).(*lfuHeapItem)
 		err := lfu.storage.Remove(heapItem.value)
@@ -143,7 +122,6 @@ func (lfu *lfuCache) store(key, val interface{}) error {
 	return nil
 }
 
-// Get a cached value.
 func (lfu *lfuCache) Get(key interface{}) (interface{}, error) {
 	lfu.mutex.Lock()
 	defer lfu.mutex.Unlock()
@@ -157,18 +135,13 @@ func (lfu *lfuCache) get(key interface{}) (interface{}, error) {
 		return nil, err
 	}
 
-	// Increase itme's frequency.
 	lfuItem := item.(lfuItem)
 	lfuItem.heapItem.frequency++
 
-	// After we changed the frequency we need to re-establish the heap ordering.
 	heap.Init(&lfu.heap)
 
 	return lfuItem.value, nil
 }
-
-// GetLeastFrequentlyUsedKey returns the next key that will popped from the heap
-// on the next store.
 func (lfu *lfuCache) GetLeastFrequentlyUsedKey() interface{} {
 	if lfu.isEmpty() {
 		return nil
@@ -176,8 +149,6 @@ func (lfu *lfuCache) GetLeastFrequentlyUsedKey() interface{} {
 	return lfu.heap[0].value
 }
 
-// Remove a cahced value.
-// Complexity - O(log n)
 func (lfu *lfuCache) Remove(key interface{}) error {
 	lfu.mutex.Lock()
 	defer lfu.mutex.Unlock()
@@ -196,7 +167,6 @@ func (lfu *lfuCache) remove(key interface{}) error {
 		return err
 	}
 
-	// TODO: find a better way to remove the item from the heap (if there is one).
 	lfuItem := value.(lfuItem)
 	for i, heapItem := range lfu.heap {
 		if heapItem == lfuItem.heapItem {
