@@ -71,3 +71,7 @@ func IsUnexpectedError(err error) bool {
 	cacheErr, isCacheErr := err.(cacheError)
 	return isCacheErr && cacheErr.errType == errorTypeUnexpectedError
 }
+func IsAlreadyExists(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeAlreadyExists
+}
