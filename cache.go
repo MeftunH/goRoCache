@@ -76,3 +76,7 @@ func IsNilUpdateFunc(err error) bool {
 	cacheErr, isCacheErr := err.(cacheError)
 	return isCacheErr && cacheErr.errType == errorTypeNilUpdateFunc
 }
+func IsInvalidKeyType(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeInvalidKeyType
+}
