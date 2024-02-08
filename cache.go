@@ -67,3 +67,7 @@ func newWrapperError(errType errorType, msg string, nestedError error) cacheErro
 		nestedError: nestedError,
 	}
 }
+func IsUnexpectedError(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeUnexpectedError
+}
