@@ -13,3 +13,9 @@ func TestSignalSendsSignalToStopChannel(t *testing.T) {
 		t.Errorf("No signal received on the stop channel")
 	}
 }
+func TestSignalStopChannelIsNil(t *testing.T) {
+	c := cacheChannel{
+		stopChannel: nil,
+	}
+	c.signal(nil)
+}
