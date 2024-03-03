@@ -11,6 +11,11 @@ import (
 type cacheChannel struct {
 	stopChannel chan bool
 }
+
+func (c cacheChannel) signal(abort interface{}) {
+
+}
+
 type mapCache struct {
 	cacheMap map[interface{}]interface{}
 
@@ -62,7 +67,29 @@ func (m mapCache) Remove(key interface{}) error {
 	//TODO implement me
 	panic("implement me")
 }
+func (m *mapCache) remove(key interface{}) error {
+	_, err := m.get(key)
+	if err != nil {
+		return err
+	}
 
+	c, exists := m.removeChannels[key]
+	abort := "abort"
+	if exists && c != nil {
+		c.signal(abort)
+		delete(m.removeChannels, key)
+	}
+
+	c, exists = m.updateChannels[key]
+	if exists && c != nil {
+		c.signal(abort)
+		delete(m.updateChannels, key)
+	}
+
+	delete(m.cacheMap, key)
+
+	return nil
+}
 func (m mapCache) Replace(key, val interface{}) error {
 	//TODO implement me
 	panic("implement me")
