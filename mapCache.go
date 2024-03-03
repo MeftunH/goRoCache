@@ -2,10 +2,8 @@ package goRoCache
 
 import (
 	"fmt"
-	_ "fmt"
 	"sync"
 	"time"
-	_ "time"
 )
 
 type cacheChannel struct {
@@ -13,7 +11,7 @@ type cacheChannel struct {
 }
 
 func (c cacheChannel) signal(abort interface{}) {
-
+	c.stopChannel <- true
 }
 
 type mapCache struct {
@@ -63,10 +61,13 @@ func (m *mapCache) get(key interface{}) (interface{}, error) {
 
 	return m.cacheMap[key], nil
 }
-func (m mapCache) Remove(key interface{}) error {
-	//TODO implement me
-	panic("implement me")
+func (m *mapCache) Remove(key interface{}) error {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	return m.remove(key)
 }
+
 func (m *mapCache) remove(key interface{}) error {
 	_, err := m.get(key)
 	if err != nil {
