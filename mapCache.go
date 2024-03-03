@@ -20,6 +20,13 @@ type mapCache struct {
 	mutex sync.Mutex
 }
 
+func NewMapCache() *mapCache {
+	return &mapCache{
+		cacheMap:       map[interface{}]interface{}{},
+		removeChannels: map[interface{}]*cacheChannel{},
+		updateChannels: map[interface{}]*cacheChannel{},
+	}
+}
 func (m mapCache) Store(key, val interface{}) error {
 	//TODO implement me
 	panic("implement me")
@@ -70,11 +77,3 @@ type UpdatingExpiringCache interface {
 }
 
 var _ UpdatingExpiringCache = (*mapCache)(nil)
-
-func NewMapCache() *mapCache {
-	return &mapCache{
-		cacheMap:       map[interface{}]interface{}{},
-		removeChannels: map[interface{}]*cacheChannel{},
-		updateChannels: map[interface{}]*cacheChannel{},
-	}
-}
