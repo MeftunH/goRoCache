@@ -28,7 +28,12 @@ func NewMapCache() *mapCache {
 		updateChannels: map[interface{}]*cacheChannel{},
 	}
 }
+func (m *mapCache) Store(key, val interface{}) error {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
 
+	return m.store(key, val)
+}
 func (m *mapCache) store(key, val interface{}) error {
 	if _, exists := m.cacheMap[key]; exists {
 		return newError(errorTypeAlreadyExists,
