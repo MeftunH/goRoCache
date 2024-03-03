@@ -44,9 +44,11 @@ func (m *mapCache) store(key, val interface{}) error {
 
 	return nil
 }
-func (m mapCache) Get(key interface{}) (interface{}, error) {
-	//TODO implement me
-	panic("implement me")
+func (m *mapCache) Get(key interface{}) (interface{}, error) {
+	m.mutex.Lock()
+	defer m.mutex.Unlock()
+
+	return m.get(key)
 }
 func (m *mapCache) get(key interface{}) (interface{}, error) {
 	if _, exists := m.cacheMap[key]; !exists {
