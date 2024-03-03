@@ -19,3 +19,18 @@ func TestSignalStopChannelIsNil(t *testing.T) {
 	}
 	c.signal(nil)
 }
+func TestNewMapCacheEmptyFields(t *testing.T) {
+	cache := NewMapCache()
+
+	if cache.cacheMap == nil {
+		t.Errorf("cacheMap field is nil")
+	}
+
+	if cache.removeChannels == nil {
+		t.Errorf("removeChannels field is nil")
+	}
+
+	if cache.updateChannels == nil {
+		t.Errorf("updateChannels field is nil")
+	}
+}
