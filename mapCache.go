@@ -48,7 +48,14 @@ func (m mapCache) Get(key interface{}) (interface{}, error) {
 	//TODO implement me
 	panic("implement me")
 }
+func (m *mapCache) get(key interface{}) (interface{}, error) {
+	if _, exists := m.cacheMap[key]; !exists {
+		return nil, newError(errorTypeDoesNotExist,
+			fmt.Sprintf("key %v doesn't exist", key))
+	}
 
+	return m.cacheMap[key], nil
+}
 func (m mapCache) Remove(key interface{}) error {
 	//TODO implement me
 	panic("implement me")
