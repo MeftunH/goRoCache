@@ -34,3 +34,18 @@ func TestNewMapCacheEmptyFields(t *testing.T) {
 		t.Errorf("updateChannels field is nil")
 	}
 }
+func TestNewMapCacheNonNilFields(t *testing.T) {
+	cache := NewMapCache()
+
+	if cache.cacheMap == nil {
+		t.Errorf("cacheMap field is nil")
+	}
+
+	if cache.removeChannels == nil {
+		t.Errorf("removeChannels field is nil")
+	}
+
+	if cache.updateChannels == nil {
+		t.Errorf("updateChannels field is nil")
+	}
+}
