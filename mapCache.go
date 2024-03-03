@@ -1,6 +1,7 @@
 package goRoCache
 
 import (
+	"fmt"
 	_ "fmt"
 	"sync"
 	"time"
@@ -27,11 +28,17 @@ func NewMapCache() *mapCache {
 		updateChannels: map[interface{}]*cacheChannel{},
 	}
 }
-func (m mapCache) Store(key, val interface{}) error {
-	//TODO implement me
-	panic("implement me")
-}
 
+func (m *mapCache) store(key, val interface{}) error {
+	if _, exists := m.cacheMap[key]; exists {
+		return newError(errorTypeAlreadyExists,
+			fmt.Sprintf("key %v is already in use", key))
+	}
+
+	m.cacheMap[key] = val
+
+	return nil
+}
 func (m mapCache) Get(key interface{}) (interface{}, error) {
 	//TODO implement me
 	panic("implement me")
