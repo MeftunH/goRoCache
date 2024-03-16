@@ -73,3 +73,21 @@ func (r *RedisCache) get(key interface{}) (interface{}, error) {
 
 	return val, nil
 }
+func (r *RedisCache) remove(key interface{}) error {
+	strKey := fmt.Sprintf("%v", key)
+
+	if _, ok := r.keysSet[strKey]; !ok {
+		return newError(errorTypeDoesNotExist,
+			fmt.Sprintf("cannot remove key %v", strKey))
+	}
+
+	res := r.client.Del(context.TODO(), strKey).Val()
+	if res < 1 {
+
+		fmt.Println("ITAY", res)
+		return newError(errorTypeDoesNotExist,
+			fmt.Sprintf("could not delete key %v", strKey))
+	}
+
+	return nil
+}
