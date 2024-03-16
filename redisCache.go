@@ -113,3 +113,18 @@ func (r *RedisCache) keys() ([]interface{}, error) {
 
 	return keys, nil
 }
+func (r *RedisCache) storeWithExpiration(key, val interface{}, ttl time.Duration) error {
+	if ttl <= 0 {
+		return newError(errorTypeNonPositivePeriod, "period must be greater than zero")
+	}
+
+	r.store(key, val, ttl)
+
+	r.createExpirationRoutine(key, ttl)
+
+	return nil
+}
+
+func (r *RedisCache) createExpirationRoutine(key interface{}, ttl time.Duration) {
+
+}
