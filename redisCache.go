@@ -91,3 +91,6 @@ func (r *RedisCache) remove(key interface{}) error {
 
 	return nil
 }
+func (r *RedisCache) replace(key, val interface{}) error {
+	return r.store(key, val, 0)
+}
