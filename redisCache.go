@@ -52,3 +52,24 @@ func (r *RedisCache) store(key, val interface{}, ttl time.Duration) error {
 
 	return nil
 }
+func (r *RedisCache) get(key interface{}) (interface{}, error) {
+	strKey := fmt.Sprintf("%v", key)
+
+	if _, ok := r.keysSet[strKey]; !ok {
+		return nil, newError(errorTypeDoesNotExist,
+			fmt.Sprintf("cannot get key %v", strKey))
+	}
+
+	val, err := r.client.Get(context.TODO(), strKey).Result()
+	if err == redis.Nil {
+		return nil, newError(errorTypeDoesNotExist,
+			fmt.Sprintf("key %v doesn't exist", strKey))
+	}
+
+	if err != nil {
+		return nil, newError(errorTypeRedisError,
+			fmt.Sprintf("failed to get %v from redis", strKey))
+	}
+
+	return val, nil
+}
