@@ -25,3 +25,15 @@ type RedisCache struct {
 }
 
 var _ (ExpiringCache) = (*RedisCache)(nil)
+
+func NewRedisCache(address, password string, db int) *RedisCache {
+	return &RedisCache{
+		keysSet:        map[string]struct{}{},
+		removeChannels: map[interface{}]*cacheChannel{},
+		client: redis.NewClient(&redis.Options{
+			Addr:     address,
+			Password: password,
+			DB:       db,
+		}),
+	}
+}
