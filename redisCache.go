@@ -94,3 +94,13 @@ func (r *RedisCache) remove(key interface{}) error {
 func (r *RedisCache) replace(key, val interface{}) error {
 	return r.store(key, val, 0)
 }
+func (r *RedisCache) clear() error {
+	for key := range r.keysSet {
+		err := r.remove(key)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
