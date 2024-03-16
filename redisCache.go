@@ -104,3 +104,12 @@ func (r *RedisCache) clear() error {
 
 	return nil
 }
+func (r *RedisCache) keys() ([]interface{}, error) {
+	keys := []interface{}{}
+
+	for key := range r.keysSet {
+		keys = append(keys, key)
+	}
+
+	return keys, nil
+}
