@@ -26,6 +26,9 @@ type RedisCache struct {
 
 	mutex sync.Mutex
 }
+type cacheChannel struct {
+	c chan int
+}
 
 var _ (ExpiringCache) = (*RedisCache)(nil)
 
@@ -141,6 +144,16 @@ func (r *RedisCache) expire(key interface{}, ttl time.Duration) error {
 	return nil
 }
 
+const (
+	proceed = iota
+	abort
+)
+
+func newCacheChannel() *cacheChannel {
+	return &cacheChannel{
+		c: make(chan int),
+	}
+}
 func (r *RedisCache) createExpirationRoutine(key interface{}, ttl time.Duration) {
 	c := newCacheChannel()
 	r.removeChannels[key] = c
