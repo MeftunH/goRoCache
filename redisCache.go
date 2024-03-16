@@ -124,6 +124,22 @@ func (r *RedisCache) storeWithExpiration(key, val interface{}, ttl time.Duration
 
 	return nil
 }
+func (r *RedisCache) expire(key interface{}, ttl time.Duration) error {
+	if ttl <= 0 {
+		return newError(errorTypeNonPositivePeriod, "period must be greater than zero")
+	}
+
+	strKey := fmt.Sprintf("%v", key)
+
+	res := r.client.Expire(context.TODO(), strKey, ttl).Val()
+	if !res {
+		return newError(errorTypeRedisError, fmt.Sprintf("could not expire key %v", strKey))
+	}
+
+	r.createExpirationRoutine(key, ttl)
+
+	return nil
+}
 
 func (r *RedisCache) createExpirationRoutine(key interface{}, ttl time.Duration) {
 	c := newCacheChannel()
