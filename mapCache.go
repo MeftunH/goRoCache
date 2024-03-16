@@ -6,20 +6,20 @@ import (
 	"time"
 )
 
-type cacheChannel struct {
+type cacheChannelStop struct {
 	stopChannel chan bool
 }
 
-func (c cacheChannel) signal(abort interface{}) {
+func (c cacheChannelStop) signal(abort interface{}) {
 	c.stopChannel <- true
 }
 
 type mapCache struct {
 	cacheMap map[interface{}]interface{}
 
-	removeChannels map[interface{}]*cacheChannel
+	removeChannels map[interface{}]*cacheChannelStop
 
-	updateChannels map[interface{}]*cacheChannel
+	updateChannels map[interface{}]*cacheChannelStop
 
 	mutex sync.Mutex
 }
@@ -27,8 +27,8 @@ type mapCache struct {
 func NewMapCache() *mapCache {
 	return &mapCache{
 		cacheMap:       map[interface{}]interface{}{},
-		removeChannels: map[interface{}]*cacheChannel{},
-		updateChannels: map[interface{}]*cacheChannel{},
+		removeChannels: map[interface{}]*cacheChannelStop{},
+		updateChannels: map[interface{}]*cacheChannelStop{},
 	}
 }
 func (m *mapCache) Store(key, val interface{}) error {
