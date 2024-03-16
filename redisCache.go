@@ -126,5 +126,26 @@ func (r *RedisCache) storeWithExpiration(key, val interface{}, ttl time.Duration
 }
 
 func (r *RedisCache) createExpirationRoutine(key interface{}, ttl time.Duration) {
+	c := newCacheChannel()
+	r.removeChannels[key] = c
 
+	expireSignalerRoutine := func(c *cacheChannel) {
+		<-time.After(ttl)
+		c.signal(proceed)
+	}
+
+	expireRoutine := func(key interface{}, c *cacheChannel) {
+		msg, ok := <-c.c
+		if !ok || msg == abort {
+			return
+		}
+
+		r.mutex.Lock()
+		defer r.mutex.Unlock()
+
+		delete(r.keysSet, fmt.Sprintf("%v", key))
+	}
+
+	go expireSignalerRoutine(c)
+	go expireRoutine(key, c)
 }
