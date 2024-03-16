@@ -2,6 +2,7 @@ package goRoCache
 
 import (
 	"sync"
+	"time"
 
 	"github.com/go-redis/redis/v8"
 )
@@ -36,4 +37,6 @@ func NewRedisCache(address, password string, db int) *RedisCache {
 			DB:       db,
 		}),
 	}
+}
+func (r *RedisCache) store(key, val interface{}, ttl time.Duration) error {
 }
