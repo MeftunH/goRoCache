@@ -21,3 +21,14 @@ func TestNewRedisCache_InitializedFields(t *testing.T) {
 		t.Errorf("Expected client to be initialized, got nil")
 	}
 }
+func TestNewRedisCache_NilClient(t *testing.T) {
+	address := ""
+	password := "password"
+	db := 0
+
+	cache := NewRedisCache(address, password, db)
+
+	if cache.client != nil {
+		t.Errorf("Expected client to be nil, got %v", cache.client)
+	}
+}
