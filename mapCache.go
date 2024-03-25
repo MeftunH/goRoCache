@@ -8,6 +8,7 @@ import (
 
 type cacheChannelStop struct {
 	stopChannel chan bool
+	c           chan int
 }
 
 func (c cacheChannelStop) signal(abort interface{}) {

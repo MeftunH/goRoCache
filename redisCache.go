@@ -160,7 +160,7 @@ func (r *RedisCache) createExpirationRoutine(key interface{}, ttl time.Duration)
 
 	expireSignalerRoutine := func(c *cacheChannel) {
 		<-time.After(ttl)
-		c.signal(proceed)
+		c.c <- proceed
 	}
 
 	expireRoutine := func(key interface{}, c *cacheChannel) {
