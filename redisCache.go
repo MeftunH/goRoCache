@@ -149,8 +149,8 @@ const (
 	abort
 )
 
-func newCacheChannel() *cacheChannel {
-	return &cacheChannel{
+func newCacheChannel() *cacheChannelStop {
+	return &cacheChannelStop{
 		c: make(chan int),
 	}
 }
@@ -158,7 +158,7 @@ func (r *RedisCache) createExpirationRoutine(key interface{}, ttl time.Duration)
 	c := newCacheChannel()
 	r.removeChannels[key] = c
 
-	expireSignalerRoutine := func(c *cacheChannel) {
+	expireSignalerRoutine := func(c *cacheChannelStop) {
 		<-time.After(ttl)
 		c.signal(proceed)
 	}
