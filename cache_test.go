@@ -414,4 +414,29 @@ func TestErrorTypeFunctionsWithUnhappyPaths(t *testing.T) {
 			}
 		})
 	}
+
+}
+func TestIsCacheNotEmpty_ErrorIsNil_ReturnsFalse(t *testing.T) {
+	result := IsCacheNotEmpty(nil)
+	if result {
+		t.Errorf("Expected false, but got true")
+	}
+}
+func TestIsCacheNotEmpty_NotCacheErrorOrDifferentErrorType_ReturnsFalse(t *testing.T) {
+	err := errors.New("An unexpected error occurred")
+
+	result := IsCacheNotEmpty(err)
+	if result {
+		t.Errorf("Expected false, but got true")
+	}
+}
+func TestIsCacheNotEmpty_ErrorIsNotCacheError_ReturnsFalse(t *testing.T) {
+	// Prepare a regular error
+	err := errors.New("An unexpected error occurred")
+
+	// Call the function and check if it returns false
+	result := IsCacheNotEmpty(err)
+	if result {
+		t.Errorf("Expected false, but got true")
+	}
 }
