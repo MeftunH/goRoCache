@@ -178,3 +178,37 @@ func (r *RedisCache) createExpirationRoutine(key interface{}, ttl time.Duration)
 	go expireSignalerRoutine(c)
 	go expireRoutine(key, c)
 }
+func (r *RedisCache) Store(key, val interface{}) error {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
+	return r.store(key, val, 0)
+}
+
+func (r *RedisCache) Get(key interface{}) (interface{}, error) {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
+	return r.get(key)
+}
+
+func (r *RedisCache) Remove(key interface{}) error {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
+	return r.remove(key)
+}
+
+func (r *RedisCache) Replace(key, val interface{}) error {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
+	return r.replace(key, val)
+}
+
+func (r *RedisCache) Clear() error {
+	r.mutex.Lock()
+	defer r.mutex.Unlock()
+
+	return r.clear()
+}
