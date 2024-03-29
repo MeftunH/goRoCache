@@ -84,3 +84,20 @@ func IsInvalidMessage(err error) bool {
 	cacheErr, isCacheErr := err.(cacheError)
 	return isCacheErr && cacheErr.errType == errorTypeInvalidMessage
 }
+
+func IsCacheNotEmpty(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeCacheNotEmpty
+}
+func IsDoesNotExist(err error) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errorTypeDoesNotExist
+}
+func IsCacheError(err error) bool {
+	_, isCacheErr := err.(cacheError)
+	return isCacheErr
+}
+func IsCacheErrorType(err error, errType errorType) bool {
+	cacheErr, isCacheErr := err.(cacheError)
+	return isCacheErr && cacheErr.errType == errType
+}
